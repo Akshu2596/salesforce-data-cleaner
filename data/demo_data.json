@@ -1,0 +1,7 @@
+{
+  "records": [
+    { "Name": "  acme corp  ", "Phone": "+91 98765 43210", "Website": "WWW.Acme.COM" },
+    { "Name": "beta solutions", "Phone": "9876543211", "Website": "beta.example.com" },
+    { "Name": "ACME corp", "Phone": "(+91)-98765-43210", "Website": "https://acme.com" }
+  ]
+}
