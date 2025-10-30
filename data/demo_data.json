@@ -1,7 +1,24 @@
 {
   "records": [
-    { "Name": "  acme corp  ", "Phone": "+91 98765 43210", "Website": "WWW.Acme.COM" },
-    { "Name": "beta solutions", "Phone": "9876543211", "Website": "beta.example.com" },
-    { "Name": "ACME corp", "Phone": "(+91)-98765-43210", "Website": "https://acme.com" }
+    {
+      "Name": "  acme corp  ",
+      "Phone": "+91 98765 43210",
+      "Website": "WWW.Acme.COM"
+    },
+    {
+      "Name": "globex pvt ltd",
+      "Phone": "0123456789",
+      "Website": "globex.com"
+    },
+    {
+      "Name": "  beta solutions ",
+      "Phone": "(+91)-9988776655",
+      "Website": "BETA.example.COM"
+    },
+    {
+      "Name": "ACME CORP",
+      "Phone": "9876543210",
+      "Website": "https://acme.com"
+    }
   ]
 }
