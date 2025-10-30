@@ -52,11 +52,6 @@ curl -X POST http://localhost:5000/clean_and_upload \
   -d '{"csv_path":"raw_accounts.csv"}'
 ```
 
-## GitHub tips
-- Add `.env` and any credentials to `.gitignore`
-- Use GitHub Actions to run tests and build Docker images
-- Use GitHub Secrets for storing `SF_CLIENT_ID`, `SF_CLIENT_SECRET`, etc.
-
 ## Next steps & enhancements
 - Add batching and use Salesforce Composite or Bulk API for large volumes
 - Add retries and exponential backoff for transient errors
