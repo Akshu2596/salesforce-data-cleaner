@@ -1,0 +1,8 @@
+{
+    "records": [
+      {"Name": "Global Dynamics", "Phone": "+1 (202) 555-0123", "Website": "globaldynamics.com"},
+      {"Name": "Tokyo Electronics", "Phone": "03-1111-2222", "Website": "tokyoelectronics.jp"},
+      {"Name": "EuroTech GmbH", "Phone": "+49-89-123456", "Website": "https://eurotech.de"}
+    ]
+  }
+  

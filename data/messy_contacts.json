@@ -1,0 +1,9 @@
+{
+    "records": [
+      {"Name": "   star   ventures ", "Phone": "+91-999 888 7777", "Website": "HTTP://StarVentures.IN"},
+      {"Name": "alpha tech", "Phone": "(080) 1234-5678", "Website": "www.alphaTech.com"},
+      {"Name": "beta solutions", "Phone": "0009998887", "Website": ""},
+      {"Name": "", "Phone": "9876543210", "Website": "no-name.com"}
+    ]
+  }
+  

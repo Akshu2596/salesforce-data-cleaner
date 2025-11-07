@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, jsonify
+from flask import Flask, render_template, request, redirect, jsonify
 import os
 import requests
 from dotenv import load_dotenv
@@ -25,7 +25,7 @@ def home():
         f"&client_id={CLIENT_ID}"
         f"&redirect_uri={REDIRECT_URI}"
     )
-    return f'<a href="{auth_link}">Connect to Salesforce</a>'
+    return render_template("index.html", auth_link=auth_link)
 
 @app.route("/callback")
 def callback():
@@ -68,14 +68,37 @@ def refresh_salesforce_token():
         "refresh_token": REFRESH_TOKEN
     }
 
-    response = requests.post(TOKEN_URL, data=data)
-    if response.status_code == 200:
-        new_token = response.json()["access_token"]
-        print("Token refreshed successfully!")
-        return new_token
-    else:
-        print("Failed to refresh token:", response.json())
+    try:
+        response = requests.post(TOKEN_URL, data=data)
+        if response.status_code == 200:
+            resp_json = response.json()
+            new_token = resp_json["access_token"]
+            print("Token refreshed successfully!")
+            
+            # Store in env (runtime memory only)
+            os.environ["SF_ACCESS_TOKEN"] = new_token
+            
+            # Optionally write to .env file
+            env_path = ".env"
+            with open(env_path, "r") as f:
+                lines = f.readlines()
+            with open(env_path, "w") as f:
+                for line in lines:
+                    if line.startswith("SF_ACCESS_TOKEN="):
+                        f.write(f"SF_ACCESS_TOKEN={new_token}\n")
+                    else:
+                        f.write(line)
+            print("Updated .env with new access token.")
+            
+            return new_token
+        else:
+            print(f"Failed to refresh token: {response.status_code}")
+            print(response.text)
+            return None
+    except Exception as e:
+        print(f"Exception during token refresh: {e}")
         return None
+
 
 
 

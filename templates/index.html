@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Salesforce Data Cleaner</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #4F46E5, #9333EA);
+            color: white;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        a {
+            text-decoration: none;
+            background: white;
+            color: #4F46E5;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: 0.3s;
+            margin-bottom: 30px;
+        }
+
+        a:hover {
+            background: #E0E7FF;
+        }
+
+        form {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 320px;
+        }
+
+        input[type="file"] {
+            background: white;
+            color: #4F46E5;
+            border: none;
+            border-radius: 6px;
+            padding: 10px;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        button {
+            background: white;
+            color: #4F46E5;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #E0E7FF;
+        }
+
+        pre {
+            background: rgba(0, 0, 0, 0.3);
+            color: #E0E7FF;
+            padding: 15px;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            width: 90%;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Salesforce Data Cleaner</h1>
+    <p>Linking the cleaner microservice with your Salesforce org</p>
+    <a href="{{ auth_link }}">Connect to Salesforce</a>
+
+    <form id="uploadForm">
+        <h3>Upload JSON or CSV file</h3>
+        <input type="file" id="fileInput" accept=".json,.csv" required />
+        <button type="submit">Clean & Upload</button>
+    </form>
+
+    <pre id="result"></pre>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const fileInput = document.getElementById('fileInput');
+            const resultEl = document.getElementById('result');
+
+            if (!fileInput.files.length) {
+                alert('Please choose a file.');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const text = await file.text();
+            let payload;
+
+            try {
+                if (file.name.endsWith('.json')) {
+                    payload = JSON.parse(text);
+                } else if (file.name.endsWith('.csv')) {
+                    const lines = text.trim().split('\n');
+                    const headers = lines[0].split(',').map(h => h.trim());
+                    const records = lines.slice(1).map(line => {
+                        const values = line.split(',').map(v => v.trim());
+                        const obj = {};
+                        headers.forEach((h, i) => obj[h] = values[i]);
+                        return obj;
+                    });
+                    payload = { records };
+                } else {
+                    alert('Unsupported file format.');
+                    return;
+                }
+            } catch (err) {
+                alert('Error parsing file: ' + err.message);
+                return;
+            }
+
+            try {
+                const res = await fetch('http://127.0.0.1:5000/clean_and_upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) {
+                    throw new Error('Server error: ' + res.status);
+                }
+
+                const data = await res.json();
+                resultEl.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                resultEl.textContent = 'Error: ' + err.message;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+    "records": [
+      {"Name": "Nova Labs", "Phone": "9876543210", "Website": "novalabs.com"},
+      {"Name": "nova labs", "Phone": "(987)654-3210", "Website": "NovaLabs.COM"},
+      {"Name": "", "Phone": "9999999999", "Website": "unknown.com"}
+    ]
+  }
+  

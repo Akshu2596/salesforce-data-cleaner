@@ -1,36 +1,32 @@
 import os
 import requests
-from dotenv import load_dotenv
-
-load_dotenv()
-
-SF_INSTANCE_URL = os.getenv("SF_INSTANCE_URL")
-SF_ACCESS_TOKEN = os.getenv("SF_ACCESS_TOKEN")
+from oauth_flow import refresh_salesforce_token
 
 def upload_to_salesforce(records):
-    
-    if not SF_INSTANCE_URL or not SF_ACCESS_TOKEN:
-        raise ValueError("Salesforce environment variables not set.")
+    access_token = os.getenv("SF_ACCESS_TOKEN")
+    instance_url = os.getenv("SF_INSTANCE_URL")
+    url = f"{instance_url}/services/data/v61.0/sobjects/Account"
 
-    url = f"{SF_INSTANCE_URL}/services/data/v61.0/sobjects/Account/"
     headers = {
-        "Authorization": f"Bearer {SF_ACCESS_TOKEN}",
+        "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json"
     }
 
-    success, failed = [], []
+    for record in records:
+        response = requests.post(url, json=record, headers=headers)
 
-    for rec in records:
-        try:
-            res = requests.post(url, headers=headers, json=rec)
-            if res.status_code == 201:
-                success.append(res.json())
+        if response.status_code == 401:  # Unauthorized (expired token)
+            print("Token expired, refreshing...")
+            new_token = refresh_salesforce_token()
+            if new_token:
+                headers["Authorization"] = f"Bearer {new_token}"
+                response = requests.post(url, json=record, headers=headers)
             else:
-                failed.append({
-                    "record": rec,
-                    "error": res.text
-                })
-        except Exception as e:
-            failed.append({"record": rec, "error": str(e)})
+                return {"status": "error", "message": "Failed to refresh token."}
 
-    return {"success": success, "failed": failed}
+        if response.status_code not in (200, 201, 204):
+            print(f"Failed to insert record: {response.text}")
+            return {"status": "error", "message": response.text}
+
+    print("All records uploaded successfully!")
+    return {"status": "success", "message": "Records uploaded to Salesforce."}
