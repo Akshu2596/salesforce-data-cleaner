@@ -7,32 +7,52 @@ from salesforce_api import upload_to_salesforce
 from flask_cors import CORS
 
 app = Flask(__name__)
-#enable CORS
-CORS(app)
+CORS(app)  # Enable CORS
+
+
+def clean_value(value):
+    """Cleans strings by removing quotes, trimming spaces, and normalizing text."""
+    if isinstance(value, str):
+        value = value.strip().strip('"').strip("'")  # remove wrapping quotes
+        value = re.sub(r"\s+", " ", value)  # collapse multiple spaces
+    return value
+
 
 def clean_name(name: str) -> str:
-    return name.strip().title()
+    name = clean_value(name)
+    return name.title() if name else ""
+
 
 def clean_phone(phone: str) -> str:
-    digits = re.sub(r"\D", "", phone)  # remove non-digits
+    phone = clean_value(phone)
+    digits = re.sub(r"\D", "", phone)
     if len(digits) == 10:
         digits = "91" + digits
     elif digits.startswith("0") and len(digits) == 11:
         digits = "91" + digits[1:]
-    return f"+{digits}"
+    return f"+{digits}" if digits else ""
+
 
 def clean_website(website: str) -> str:
-    site = website.strip().lower()
-    if not site.startswith("http"):
-        site = "https://" + site
-    return site
+    website = clean_value(website).lower()
+    if website and not website.startswith("http"):
+        website = "https://" + website
+    return website
+
 
 def clean_record(record: dict) -> dict:
-    return {
+    """Cleans all string fields for a single record safely."""
+    cleaned = {
         "Name": clean_name(record.get("Name", "")),
         "Phone": clean_phone(record.get("Phone", "")),
         "Website": clean_website(record.get("Website", "")),
     }
+    # Clean any other fields generically
+    for key, val in record.items():
+        if key not in cleaned:
+            cleaned[key] = clean_value(val)
+    return cleaned
+
 
 @app.route("/clean_and_upload", methods=["POST"])
 def clean_and_upload():
@@ -73,7 +93,8 @@ def clean_and_upload():
             "total_records": len(raw_records),
             "valid_records": len(valid_records),
             "invalid_records": len(invalid_records),
-            "invalid_samples": invalid_records[:3]
+            "invalid_samples": invalid_records[:3],
+            "upload_summary": upload_result
         }), 200
 
     except Exception as e:
