@@ -1,6 +1,7 @@
 import os
 import requests
 from oauth_flow import refresh_salesforce_token
+from salesforce_client import salesforce_request
 
 def upload_to_salesforce(records):
     access_token = os.getenv("SF_ACCESS_TOKEN")
@@ -13,7 +14,12 @@ def upload_to_salesforce(records):
     }
 
     for record in records:
-        response = requests.post(url, json=record, headers=headers)
+        response = salesforce_request(
+                    "POST",
+                    "/services/data/v60.0/sobjects/Account/",
+                    json=record
+        )
+        # response = requests.post(url, json=record, headers=headers)
 
         if response.status_code == 401:  # Unauthorized (expired token)
             print("Token expired, refreshing...")

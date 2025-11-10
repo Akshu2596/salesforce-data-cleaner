@@ -1,3 +1,4 @@
+from pathlib import Path
 from flask import Flask, render_template, request, redirect, jsonify
 import os
 import requests
@@ -29,12 +30,10 @@ def home():
 
 @app.route("/callback")
 def callback():
-    # Get the "code" from the Salesforce redirect
     code = request.args.get("code")
     if not code:
         return "Error: No code returned by Salesforce", 400
 
-    # Exchange the code for an access token
     data = {
         "grant_type": "authorization_code",
         "code": code,
@@ -49,59 +48,87 @@ def callback():
     if "error" in result:
         return jsonify(result), 400
 
-    # Save token (you can persist it to file/db)
-    with open("token.json", "w") as f:
-        f.write(response.text)
+    access_token = result.get("access_token")
+    refresh_token = result.get("refresh_token")
+    instance_url = result.get("instance_url")
 
-    return jsonify(result)
+    if access_token:
+        update_env_var("SF_ACCESS_TOKEN", access_token)
+        os.environ["SF_ACCESS_TOKEN"] = access_token
+
+    if refresh_token:
+        update_env_var("SF_REFRESH_TOKEN", refresh_token)
+        os.environ["SF_REFRESH_TOKEN"] = refresh_token
+
+    if instance_url:
+        update_env_var("SF_INSTANCE_URL", instance_url)
+        os.environ["SF_INSTANCE_URL"] = instance_url
+
+    print("✅ Tokens successfully saved to .env")
+
+    return jsonify({
+        "message": "Access Token saved! You can close this tab.",
+        "access_token": access_token,
+        "instance_url": instance_url,
+        "refresh_token": refresh_token
+    })
 
 def refresh_salesforce_token():
-    TOKEN_URL = os.getenv("SF_TOKEN_URL")
-    CLIENT_ID = os.getenv("SF_CLIENT_ID")
-    CLIENT_SECRET = os.getenv("SF_CLIENT_SECRET")
-    REFRESH_TOKEN = os.getenv("SF_REFRESH_TOKEN")
+    refresh_token = os.getenv("SF_REFRESH_TOKEN")
+    client_id = os.getenv("SF_CLIENT_ID")
+    client_secret = os.getenv("SF_CLIENT_SECRET")
+    token_url = "https://login.salesforce.com/services/oauth2/token"
 
-    data = {
+    payload = {
         "grant_type": "refresh_token",
-        "client_id": CLIENT_ID,
-        "client_secret": CLIENT_SECRET,
-        "refresh_token": REFRESH_TOKEN
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "refresh_token": refresh_token
     }
 
-    try:
-        response = requests.post(TOKEN_URL, data=data)
-        if response.status_code == 200:
-            resp_json = response.json()
-            new_token = resp_json["access_token"]
-            print("Token refreshed successfully!")
-            
-            # Store in env (runtime memory only)
-            os.environ["SF_ACCESS_TOKEN"] = new_token
-            
-            # Optionally write to .env file
-            env_path = ".env"
-            with open(env_path, "r") as f:
-                lines = f.readlines()
-            with open(env_path, "w") as f:
-                for line in lines:
-                    if line.startswith("SF_ACCESS_TOKEN="):
-                        f.write(f"SF_ACCESS_TOKEN={new_token}\n")
-                    else:
-                        f.write(line)
-            print("Updated .env with new access token.")
-            
-            return new_token
-        else:
-            print(f"Failed to refresh token: {response.status_code}")
-            print(response.text)
-            return None
-    except Exception as e:
-        print(f"Exception during token refresh: {e}")
+    response = requests.post(token_url, data=payload)
+    if response.status_code == 200:
+        new_data = response.json()
+        access_token = new_data.get("access_token")
+
+        if access_token:
+            update_env_var("SF_ACCESS_TOKEN", access_token)
+            os.environ["SF_ACCESS_TOKEN"] = access_token
+            print("✅ Salesforce token refreshed successfully.")
+            return access_token
+
+    else:
+        print(f"❌ Failed to refresh token: {response.text}")
         return None
+    
+def update_env_var(key, value):
+    """Overwrites or adds a key=value pair in .env cleanly."""
+    env_path = Path(".env")
 
+    # Load all lines safely
+    if env_path.exists():
+        with env_path.open("r") as f:
+            lines = f.readlines()
+    else:
+        lines = []
 
+    key_found = False
+    new_lines = []
+    for line in lines:
+        if line.strip().startswith(f"{key}="):
+            new_lines.append(f"{key}={value}\n")
+            key_found = True
+        else:
+            new_lines.append(line)
 
+    if not key_found:
+        new_lines.append(f"{key}={value}\n")
 
+    with env_path.open("w") as f:
+        f.writelines(new_lines)
+
+    # Also update in-memory environment immediately
+    os.environ[key] = value
 
 if __name__ == "__main__":
     app.run(port=8080, debug=True)
