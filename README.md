@@ -12,17 +12,17 @@ It cleans data (like names, phone numbers, and websites), validates them, and pu
 
 ### Features
 
-- 🔐 **OAuth2-based Salesforce connection**
-- 🔁 **Auto token refresh** (access token updated in `.env`)
-- 🧽 **Data cleaning** (names, phones, websites)
-- 🧠 **Handles invalid and missing records gracefully**
-- 💾 **Saves cleaned records locally as JSON backups**
-- ⚙️ **Built-in retry for expired tokens**
-- 🌐 **CORS-enabled Flask API for frontend integration**
+- OAuth2-based Salesforce connection
+- Auto token refresh** (access token updated in `.env`)
+- Data cleaning** (names, phones, websites)
+- Handles invalid and missing records gracefully
+- Saves cleaned records locally as JSON backups
+- Built-in retry for expired tokens
+- CORS-enabled Flask API for frontend integration
 
 ---
 
-## 🏗️ Project Structure
+## Project Structure
 
 salesforce-data-cleaner/
 │
@@ -47,14 +47,14 @@ cd salesforce-data-cleaner
 
 2️⃣ Create a Virtual Environment
 bash
-Copy code
+
 python -m venv venv
 source venv/bin/activate      # macOS/Linux
 venv\Scripts\activate         # Windows
 
 3️⃣ Install Dependencies
 bash
-Copy code
+
 pip install -r requirements.txt
 
 4️⃣ Configure Environment Variables
@@ -103,7 +103,7 @@ Name	Removes quotes, trims spaces, converts to Title Case
 Phone	Removes non-digit characters, formats as “+91XXXXXXXXXX”
 Website	Ensures lowercase and adds “https://” prefix if missing
 
-Example API Request
+Example API Request:
 POST /clean_and_upload
 
 json
@@ -135,19 +135,16 @@ The .env file is updated instantly with the new SF_ACCESS_TOKEN.
 No stale token issues or manual edits needed.
 
 Tech Stack
+
 Python 3.10+
-
 Flask
-
 Requests
-
 Flask-CORS
-
 python-dotenv
-
 Salesforce REST API
 
 Future Enhancements
+
 Add support for Contacts and Leads
 Deploy on Render/Heroku
 Cleaning summary dashboard
