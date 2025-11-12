@@ -50,6 +50,7 @@ def callback():
 
     access_token = result.get("access_token")
     refresh_token = result.get("refresh_token")
+    print("refresh_token: ",refresh_token)
     instance_url = result.get("instance_url")
 
     if access_token:
