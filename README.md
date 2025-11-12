@@ -24,16 +24,15 @@ It cleans data (like names, phone numbers, and websites), validates them, and pu
 
 Project Structure
 
-salesforce-data-cleaner/
-app.py # Flask app for cleaning + uploading data
-oauth_flow.py # Handles OAuth2 login & token refresh
-salesforce_api.py # Uploads records to Salesforce + refreshes token on expiry
-templates/
-index.html # Simple UI for connecting & uploading
-cleaned/ # Saved cleaned files
-env # Stores Salesforce credentials and auto-updated tokens
-requirements.txt # Python dependencies
-README.md
+- salesforce-data-cleaner/
+- app.py # Flask app for cleaning + uploading data
+- oauth_flow.py # Handles OAuth2 login & token refresh
+- salesforce_api.py # Uploads records to Salesforce + refreshes token on expiry
+- templates/
+- index.html # Simple UI for connecting & uploading
+- cleaned/ # Saved cleaned files
+- env # Stores Salesforce credentials and auto-updated tokens
+- requirements.txt # Python dependencies
 
 ⚙️ Setup Instructions
 
