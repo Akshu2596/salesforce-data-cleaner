@@ -1,7 +1,7 @@
 import os
 import requests
 from dotenv import load_dotenv
-from oauth_flow import refresh_salesforce_token
+from oauth_flow import refresh_salesforce_token, update_env_var
 
 load_dotenv()
 

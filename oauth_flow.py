@@ -65,7 +65,7 @@ def callback():
         update_env_var("SF_INSTANCE_URL", instance_url)
         os.environ["SF_INSTANCE_URL"] = instance_url
 
-    print("✅ Tokens successfully saved to .env")
+    print("Tokens successfully saved to .env")
 
     return jsonify({
         "message": "Access Token saved! You can close this tab.",
@@ -95,11 +95,11 @@ def refresh_salesforce_token():
         if access_token:
             update_env_var("SF_ACCESS_TOKEN", access_token)
             os.environ["SF_ACCESS_TOKEN"] = access_token
-            print("✅ Salesforce token refreshed successfully.")
+            print("Salesforce token refreshed successfully.")
             return access_token
 
     else:
-        print(f"❌ Failed to refresh token: {response.text}")
+        print(f"Failed to refresh token: {response.text}")
         return None
     
 def update_env_var(key, value):
