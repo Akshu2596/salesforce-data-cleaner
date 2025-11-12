@@ -22,7 +22,7 @@ It cleans data (like names, phone numbers, and websites), validates them, and pu
 
 ---
 
-## Project Structure
+Project Structure
 
 salesforce-data-cleaner/
 │
