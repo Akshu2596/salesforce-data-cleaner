@@ -25,23 +25,20 @@ It cleans data (like names, phone numbers, and websites), validates them, and pu
 Project Structure
 
 salesforce-data-cleaner/
-│
-├── app.py # Flask app for cleaning + uploading data
-├── oauth_flow.py # Handles OAuth2 login & token refresh
-├── salesforce_api.py # Uploads records to Salesforce + refreshes token on expiry
-│
-├── templates/
-│ └── index.html # Simple UI for connecting & uploading
-│
-├── cleaned/ # Saved cleaned files
-├── .env # Stores Salesforce credentials and auto-updated tokens
-├── requirements.txt # Python dependencies
-└── README.md
+app.py # Flask app for cleaning + uploading data
+oauth_flow.py # Handles OAuth2 login & token refresh
+salesforce_api.py # Uploads records to Salesforce + refreshes token on expiry
+templates/
+index.html # Simple UI for connecting & uploading
+cleaned/ # Saved cleaned files
+env # Stores Salesforce credentials and auto-updated tokens
+requirements.txt # Python dependencies
+README.md
 
 ⚙️ Setup Instructions
 
 1️⃣ Clone the Repository
-```bash
+
 git clone https://github.com/<your-username>/salesforce-data-cleaner.git
 cd salesforce-data-cleaner
 
@@ -60,7 +57,7 @@ pip install -r requirements.txt
 4️⃣ Configure Environment Variables
 Create a .env file with the following:
 
-env
+Inside .env
 
 SF_CLIENT_ID=your_salesforce_client_id
 SF_CLIENT_SECRET=your_salesforce_client_secret
@@ -89,7 +86,6 @@ Click “Connect to Salesforce”, authorise, and your .env will automatically u
 Step 2: Start the Data Cleaner Service
 Handles data upload and cleaning.
 
-bash
 
 python app.py
 API will be available at
