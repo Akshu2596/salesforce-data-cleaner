@@ -1,61 +1,158 @@
-# Salesforce Data Cleaner Microservice
+# Salesforce Data Cleaner
 
-A small Python Flask microservice that:
-- Accepts raw records (JSON array or CSV placed under `data/`)
-- Cleans and normalizes fields (Name, Phone, Website)
-- Optionally uploads cleaned records to Salesforce via the REST API
-- Works in **mock** mode by default so you can demo without Salesforce credentials
+A lightweight Flask microservice that **cleans, validates, and uploads data to Salesforce** using the REST API.  
+It includes **OAuth2 authentication**, **automatic token refresh**, and **direct .env updates** — no more manual token handling!
 
-## Features
-- `POST /clean_and_upload` endpoint
-- Accepts `{ "records": [...] }` or `{ "csv_path": "raw_accounts.csv" }`
-- Cleans data and writes cleaned JSON to `cleaned/` when run in mock mode
-- Example files included in `data/`
+---
 
-## Quickstart (local)
+## Overview
 
-1. Clone or download this repo.
-2. Create and activate a Python virtualenv (recommended):
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
-   ```
-3. Run the app (mock mode by default):
-   ```bash
-   export MOCK=true
-   python app.py
-   ```
-4. Demo with sample JSON:
-   ```bash
-   curl -X POST http://localhost:5000/clean_and_upload \
-     -H "Content-Type: application/json" \
-     -d @data/demo_data.json
-   ```
+This project streamlines the process of preparing and uploading records to Salesforce.  
+It cleans data (like names, phone numbers, and websites), validates them, and pushes them to your Salesforce org securely.
 
-## Integrating with Salesforce (non-mock mode)
+### Features
 
-To push cleaned records to Salesforce set these environment variables:
-- `MOCK=false`
-- `SF_INSTANCE_URL` (e.g. `https://your-org.my.salesforce.com`)
-- `SF_ACCESS_TOKEN` (OAuth access token)
+- 🔐 **OAuth2-based Salesforce connection**
+- 🔁 **Auto token refresh** (access token updated in `.env`)
+- 🧽 **Data cleaning** (names, phones, websites)
+- 🧠 **Handles invalid and missing records gracefully**
+- 💾 **Saves cleaned records locally as JSON backups**
+- ⚙️ **Built-in retry for expired tokens**
+- 🌐 **CORS-enabled Flask API for frontend integration**
 
-> For production use you should implement an OAuth 2.0 flow (Web Server or JWT Bearer)
-> and never store client secrets or access tokens directly in source control.
+---
 
-## CSV input
+## 🏗️ Project Structure
 
-Place a CSV file under `data/` (header example: `Name,Phone,Website`) and call:
+salesforce-data-cleaner/
+│
+├── app.py # Flask app for cleaning + uploading data
+├── oauth_flow.py # Handles OAuth2 login & token refresh
+├── salesforce_api.py # Uploads records to Salesforce + refreshes token on expiry
+│
+├── templates/
+│ └── index.html # Simple UI for connecting & uploading
+│
+├── cleaned/ # Saved cleaned files
+├── .env # Stores Salesforce credentials and auto-updated tokens
+├── requirements.txt # Python dependencies
+└── README.md
+
+⚙️ Setup Instructions
+
+1️⃣ Clone the Repository
 ```bash
-curl -X POST http://localhost:5000/clean_and_upload \
-  -H "Content-Type: application/json" \
-  -d '{"csv_path":"raw_accounts.csv"}'
-```
+git clone https://github.com/<your-username>/salesforce-data-cleaner.git
+cd salesforce-data-cleaner
 
-## Next steps & enhancements
-- Add batching and use Salesforce Composite or Bulk API for large volumes
-- Add retries and exponential backoff for transient errors
-- Add unit tests and Dockerfile for deployment
-- Add authentication to the Flask endpoint if exposing publicly
+2️⃣ Create a Virtual Environment
+bash
+Copy code
+python -m venv venv
+source venv/bin/activate      # macOS/Linux
+venv\Scripts\activate         # Windows
 
--- End of README
+3️⃣ Install Dependencies
+bash
+Copy code
+pip install -r requirements.txt
+
+4️⃣ Configure Environment Variables
+Create a .env file with the following:
+
+env
+
+SF_CLIENT_ID=your_salesforce_client_id
+SF_CLIENT_SECRET=your_salesforce_client_secret
+SF_REDIRECT_URI=http://127.0.0.1:8080/callback
+SF_AUTH_URL=https://login.salesforce.com/services/oauth2/authorize
+SF_TOKEN_URL=https://login.salesforce.com/services/oauth2/token
+
+# These will be auto-filled after first auth
+SF_ACCESS_TOKEN=
+SF_REFRESH_TOKEN=
+SF_INSTANCE_URL=
+
+▶️ How to Run
+
+Step 1: Start the OAuth Service
+Handles authentication & token refresh.
+
+bash
+
+python oauth_flow.py
+Then visit
+http://127.0.0.1:8080
+
+Click “Connect to Salesforce”, authorise, and your .env will automatically update with fresh tokens and instance details.
+
+Step 2: Start the Data Cleaner Service
+Handles data upload and cleaning.
+
+bash
+
+python app.py
+API will be available at
+http://127.0.0.1:5000
+
+You can POST data via the UI or API endpoint /clean_and_upload.
+
+Data Cleaning Rules
+Field	Cleaning Logic
+Name	Removes quotes, trims spaces, converts to Title Case
+Phone	Removes non-digit characters, formats as “+91XXXXXXXXXX”
+Website	Ensures lowercase and adds “https://” prefix if missing
+
+Example API Request
+POST /clean_and_upload
+
+json
+
+{
+  "records": [
+    { "Name": "\"Acme  Corp \"", "Phone": "(987)-654-3210", "Website": "acme.com" },
+    { "Name": "   ", "Phone": "12345", "Website": "" }
+  ]
+}
+Response:
+
+json
+
+{
+  "status": "success",
+  "message": "Data cleaned successfully",
+  "total_records": 2,
+  "valid_records": 1,
+  "invalid_records": 1,
+  "saved_to": "cleaned/cleaned_20251112123500.json"
+}
+
+Token Handling
+If Salesforce returns 401 Unauthorised, the app automatically refreshes the token.
+
+The .env file is updated instantly with the new SF_ACCESS_TOKEN.
+
+No stale token issues or manual edits needed.
+
+Tech Stack
+Python 3.10+
+
+Flask
+
+Requests
+
+Flask-CORS
+
+python-dotenv
+
+Salesforce REST API
+
+Future Enhancements
+Add support for Contacts and Leads
+Deploy on Render/Heroku
+Cleaning summary dashboard
+
+Author
+Aksh — Software Developer
+Building clean, smart, and automated Salesforce data tools
+
