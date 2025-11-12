@@ -92,16 +92,16 @@ http://127.0.0.1:5000
 
 You can POST data via the UI or API endpoint /clean_and_upload.
 
-# Data Cleaning Rules
-Field	Cleaning Logic
-Name	Removes quotes, trims spaces, converts to Title Case
-Phone	Removes non-digit characters, formats as “+91XXXXXXXXXX”
-Website	Ensures lowercase and adds “https://” prefix if missing
+## Data Cleaning Rules
+1. Field	Cleaning Logic
+2. Name	Removes quotes, trims spaces, converts to Title Case
+3. Phone	Removes non-digit characters, formats as “+91XXXXXXXXXX”
+4. Website	Ensures lowercase and adds “https://” prefix if missing
 
-Example API Request:
+### Example API Request:
 POST /clean_and_upload
 
-json
+```json
 
 {
   "records": [
@@ -109,9 +109,10 @@ json
     { "Name": "   ", "Phone": "12345", "Website": "" }
   ]
 }
+```
 Response:
 
-json
+```json
 
 {
   "status": "success",
@@ -121,30 +122,27 @@ json
   "invalid_records": 1,
   "saved_to": "cleaned/cleaned_20251112123500.json"
 }
+```
 
-Token Handling
-If Salesforce returns 401 Unauthorised, the app automatically refreshes the token.
+### Token Handling:
 
-The .env file is updated instantly with the new SF_ACCESS_TOKEN.
+- If Salesforce returns 401 Unauthorised, the app automatically refreshes the token.
+- The .env file is updated instantly with the new SF_ACCESS_TOKEN.
+- No stale token issues or manual edits needed.
 
-No stale token issues or manual edits needed.
+## Tech Stack
 
-Tech Stack
+- Python 3.10+
+- Flask
+- Requests
+- Flask-CORS
+- python-dotenv
+- Salesforce REST API
 
-Python 3.10+
-Flask
-Requests
-Flask-CORS
-python-dotenv
-Salesforce REST API
+## Future Enhancements
 
-Future Enhancements
+- Add support for Contacts and Leads
+- Deploy on Render/Heroku
+- Cleaning summary dashboard
 
-Add support for Contacts and Leads
-Deploy on Render/Heroku
-Cleaning summary dashboard
-
-Author
-Aksh — Software Developer
-Building clean, smart, and automated Salesforce data tools
 
