@@ -37,20 +37,21 @@ Project Structure
 ⚙️ Setup Instructions
 
 1️⃣ Clone the Repository
-
+ ```bash
 git clone https://github.com/<your-username>/salesforce-data-cleaner.git
 cd salesforce-data-cleaner
+```
 
 2️⃣ Create a Virtual Environment
-
+ ```bash
 python -m venv venv
 source venv/bin/activate      # macOS/Linux
 venv\Scripts\activate         # Windows
-
+```
 3️⃣ Install Dependencies
-
+```bash
 pip install -r requirements.txt
-
+```
 4️⃣ Configure Environment Variables
 Create a .env file with the following:
 
@@ -72,9 +73,9 @@ SF_INSTANCE_URL=
 Step 1: Start the OAuth Service
 Handles authentication & token refresh.
 
-bash
-
+```bash
 python oauth_flow.py
+```
 Then visit
 http://127.0.0.1:8080
 
@@ -83,8 +84,9 @@ Click “Connect to Salesforce”, authorise, and your .env will automatically u
 Step 2: Start the Data Cleaner Service
 Handles data upload and cleaning.
 
-
+```bash
 python app.py
+```
 API will be available at
 http://127.0.0.1:5000
 
